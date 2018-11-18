@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <h1>{{ name }}</h1>
+        <ul>
+            {% for unit in units %}
+                <li>
+                    <a href={{ unit.link }}>{{ unit.name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </body>
+</html>

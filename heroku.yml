@@ -1,0 +1,12 @@
+setup:
+  addons:
+    - plan: 'heroku-postgresql:hobby-dev'
+      as: DATABASE
+  packages:
+    - libatomic.so.1
+build:
+  languages:
+    - 'https://github.com/kylef/heroku-buildpack-swift'
+run:
+  web: NoteWiki --workers 3 --bind 0.0.0.0:$PORT
+

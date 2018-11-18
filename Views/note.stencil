@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <h1>Note Page</h1>
+        {{ note }}
+        
+        <h2>Menu</h2>
+        <ul>
+            {% for note in menu %}
+                <li>
+                    <a href={{ note.link }}>{{ note.name }}</a>
+                    {% if note.index == index %}
+                        <p>*</p>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    </body>
+</html>
