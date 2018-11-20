@@ -1,30 +1,25 @@
 //
-//  HomePage.swift
+//  HomeController.swift
 //  NoteWiki
 //
-//  Created by Liam on 10/7/18.
+//  Created by Liam on 11/18/18.
 //  Copyright © 2018 Liam Rosenfeld. All rights reserved.
 //
 
-import Kitura
 import Foundation
-import LoggerAPI
+import Vapor
 
-func showHomePage(request: RouterRequest, response: RouterResponse, next: @escaping () -> Void ) {
-    let classes = HomePage.getClasses()
-    let context = HomeContext(classes: classes)
+final class HomeController {
+    func get(_ req: Request) throws -> Future<View> {
+        let classes = getClasses()
+        let context = HomeContext(classes: classes)
 
-    do {
-        try response.render("home.stencil", with: context)
-    } catch let error {
-        response.status(.internalServerError).send(error.localizedDescription)
+        return try req.view().render("home", context)
     }
-}
 
-struct HomePage {
-    static func getClasses() -> [Class] {
+    func getClasses() -> [Class] {
         let fileManager = FileManager.default
-        let absolutePath = StaticFileServer(path: "Markdown").absoluteRootPath
+        let absolutePath = "/Users/liam/github/NoteWiki/Markdown/"
 
         var classes = [Class]()
         var subpaths: [String]!
@@ -47,4 +42,13 @@ struct HomePage {
 
         return classes
     }
+}
+
+struct HomeContext: Codable {
+    var classes: [Class]
+}
+
+struct `Class`: Codable {
+    var name: String
+    var link: String
 }
