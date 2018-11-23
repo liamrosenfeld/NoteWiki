@@ -74,3 +74,6 @@ xcuserdata
 ### Other Editors ###
 .idea
 .vscode
+
+### Vapor ###
+Config/secrets

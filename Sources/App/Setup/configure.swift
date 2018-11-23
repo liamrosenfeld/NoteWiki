@@ -8,7 +8,7 @@
 
 import Vapor
 import Leaf
-import FluentSQLite
+import FluentPostgreSQL
 
 /// Called before your application initializes.
 ///
@@ -27,18 +27,29 @@ public func configure(
     try services.register(LeafProvider())
     config.prefer(LeafRenderer.self, for: ViewRenderer.self)
     
-    // Add Tags
+    // Add Leaf Tags
     services.register { container -> LeafTagConfig in
         var config = LeafTagConfig.default()
         config.use(Raw(), as: "raw")
-        
         return config
     }
     
-    // Setup SQL TEMP
-    try services.register(FluentSQLiteProvider())
-    let sqlite = try SQLiteDatabase(storage: .memory)
+    // Setup Middlewear
+    var middlewares = MiddlewareConfig()
+    middlewares.use(ErrorMiddleware.self)
+    services.register(middlewares)
+    
+    // Setup PostgreSQL Database
+    try services.register(FluentPostgreSQLProvider())
     var databases = DatabasesConfig()
-    databases.add(database: sqlite, as: .sqlite)
+    let databaseConfig = PostgreSQLDatabaseConfig(hostname: "localhost", port: 5432, username: "liam", database: "notewiki", password: nil)
+    let database = PostgreSQLDatabase(config: databaseConfig)
+    databases.add(database: database, as: .psql)
     services.register(databases)
+    
+    // Setup Database Migration
+    var migrations = MigrationConfig()
+    migrations.add(model: Note.self, database: .psql)
+    services.register(migrations)
+    
 }

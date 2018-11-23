@@ -4,14 +4,18 @@
         <h1>NoteWiki</h1>
         <p>Blurb</p>
 
-        <h2>Choose Class</h2>
-        <ul>
-            #for(class in classes) {
-                <li>
-                    <a href=#(class.link)>#(class.name)</a>
-                </li>
-            }
-        </ul>
+        #if(classes) {
+            <h2>Choose Class</h2>
+            <ul>
+                #for(class in classes) {
+                    <li>
+                        <a href=#(class.link)>#(class.name)</a>
+                    </li>
+                }
+            </ul>
+        } else {
+            <p>Oops. Somthing Went Wrong.</p>
+        }
     </body>
 </html>
 

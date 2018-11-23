@@ -1,5 +1,5 @@
 //
-//  String+CamelCase.swift
+//  String+Util.swift
 //  NoteWiki
 //
 //  Created by Liam on 10/9/18.
