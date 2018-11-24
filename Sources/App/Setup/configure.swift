@@ -42,7 +42,12 @@ public func configure(
     // Setup PostgreSQL Database
     try services.register(FluentPostgreSQLProvider())
     var databases = DatabasesConfig()
-    let databaseConfig = PostgreSQLDatabaseConfig(hostname: "localhost", port: 5432, username: "liam", database: "notewiki", password: nil)
+    let databaseConfig: PostgreSQLDatabaseConfig
+    if let url = Environment.get("DATABASE_URL") {
+        databaseConfig = PostgreSQLDatabaseConfig(url: url, transport: .unverifiedTLS)!
+    } else {
+        databaseConfig = try PostgreSQLDatabaseConfig.default()
+    }
     let database = PostgreSQLDatabase(config: databaseConfig)
     databases.add(database: database, as: .psql)
     services.register(databases)

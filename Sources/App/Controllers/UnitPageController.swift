@@ -19,7 +19,7 @@ final class UnitPageController {
         return Note.query(on: req).filter(\.`class` == className).filter(\.unit == unitName).all().map(to: Response.self) { notes in
             var rawNotes = [String]()
             for note in notes {
-                rawNotes.append(note.class)
+                rawNotes.append(note.note)
             }
             
             rawNotes = Array(Set(rawNotes)) // Delete Duplicates

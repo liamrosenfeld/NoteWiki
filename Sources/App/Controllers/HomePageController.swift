@@ -35,7 +35,6 @@ final class HomePageController {
             return classes
         }.flatMap(to: View.self) { classes in
             let context = HomeContext(classes: classes)
-            print(context)
             return try req.view().render("home", context)
         }
     }
