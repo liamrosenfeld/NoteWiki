@@ -23,6 +23,7 @@ final class NotesController: RouteCollection {
     }
     
     func createHandler(_ req: Request) throws -> Future<Note> {
+        try auth(req)
         let note = try req.content.decode(Note.self)
         return note.save(on: req)
     }
@@ -32,12 +33,16 @@ final class NotesController: RouteCollection {
     }
     
     func deleteHandler(_ req: Request) throws -> Future<HTTPStatus> {
+        try auth(req)
+        
         return try req.parameters.next(Note.self).flatMap(to: HTTPStatus.self) { note in
             return note.delete(on: req).transform(to: .noContent)
         }
     }
     
     func updateHandler(_ req: Request) throws -> Future<Note> {
+        try auth(req)
+        
         return try flatMap(to: Note.self, req.parameters.next(Note.self), req.content.decode(Note.self)) { note, updatedNote in
             note.class = updatedNote.class
             note.unit = updatedNote.unit
@@ -46,4 +51,19 @@ final class NotesController: RouteCollection {
             return note.save(on: req)
         }
     }
+    
+    func auth(_ req: Request) throws {
+        let auth = req.http.headers.basicAuthorization
+        guard let login = auth else {
+            throw Abort(.forbidden)
+        }
+        
+        if login.username != Environment.get("ADMIN_USERNAME") {
+            throw Abort(.forbidden)
+        }
+        if login.password != Environment.get("ADMIN_PASSWORD") {
+            throw Abort(.forbidden)
+        }
+    }
+    
 }
