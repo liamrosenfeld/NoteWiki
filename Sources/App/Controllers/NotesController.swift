@@ -7,6 +7,7 @@
 //
 
 import Vapor
+import Fluent
 
 final class NotesController: RouteCollection {
     func boot(router: Router) throws {
@@ -14,8 +15,7 @@ final class NotesController: RouteCollection {
         notesRoute.get(use: getAllHandler)
         notesRoute.post(use: createHandler)
         notesRoute.get(Note.parameter, use: getHandler)
-        notesRoute.delete(Note.parameter, use: deleteHandler)
-        notesRoute.put(Note.parameter, use: updateHandler)
+        notesRoute.delete(use: deleteHandler)
     }
     
     func getAllHandler(_ req: Request) throws -> Future<[Note]> {
@@ -34,21 +34,17 @@ final class NotesController: RouteCollection {
     
     func deleteHandler(_ req: Request) throws -> Future<HTTPStatus> {
         try auth(req)
-        
-        return try req.parameters.next(Note.self).flatMap(to: HTTPStatus.self) { note in
+        let reqNote = try req.content.decode(Note.self)
+        return reqNote.flatMap { note -> Future<Note?> in
+            let className = note.class
+            let unitName = note.unit
+            let noteName = note.note
+            return Note.query(on: req).filter(\.`class` == className).filter(\.unit == unitName).filter(\.note == noteName).first()
+        }.flatMap { note -> Future<HTTPStatus> in
+            guard let note = note else {
+                throw Abort(.notFound)
+            }
             return note.delete(on: req).transform(to: .noContent)
-        }
-    }
-    
-    func updateHandler(_ req: Request) throws -> Future<Note> {
-        try auth(req)
-        
-        return try flatMap(to: Note.self, req.parameters.next(Note.self), req.content.decode(Note.self)) { note, updatedNote in
-            note.class = updatedNote.class
-            note.unit = updatedNote.unit
-            note.note = updatedNote.note
-            note.content = updatedNote.content
-            return note.save(on: req)
         }
     }
     
